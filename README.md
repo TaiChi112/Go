@@ -1,1 +1,1 @@
-This aboud everything golang when I study on university RU
+This is the Go language code when I was learning it.
