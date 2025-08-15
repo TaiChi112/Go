@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:16
+    container_name: pg_db
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-appdb}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  app:
+    build: .
+    container_name: go_fiber_app
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    # ถ้าต้องการ live-reload ใน dev สามารถ bind mount โค้ดเข้ามาได้ (optional):
+    # volumes:
+    #   - ./:/app
+
+volumes:
+  pg_data:
